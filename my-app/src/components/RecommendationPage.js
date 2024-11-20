@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { AppBar, Toolbar, Typography, Button, Grid, IconButton } from '@mui/material';
 import styled from 'styled-components';
 import axios from 'axios';
@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { addVideoToPlaylist } from '../redux/playlistSlice';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/images/cloud.png'; // 로고 경로를 확인하세요
+import logo from '../assets/images/cloud.png'; 
 
 const MoodButton = styled(Button)`
   background-color: #ff6f61;
@@ -41,13 +41,7 @@ const RecommendationPage = ({ isLoggedIn }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleMoodClick = async (selectedMood) => {
-    console.log('Selected Mood:', selectedMood);
-    setMood(selectedMood);
-    await fetchYouTubeVideos(selectedMood);
-  };
-
-  const fetchYouTubeVideos = async (mood) => {
+  const fetchYouTubeVideos = useCallback(async (mood) => {
     const API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
     const query = `${mood} music`;
     const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}`;
@@ -59,20 +53,26 @@ const RecommendationPage = ({ isLoggedIn }) => {
     } catch (error) {
       console.error('Error fetching YouTube videos:', error);
     }
-  };
+  }, []);
 
-  const handleVideoClick = (video) => {
+  const handleMoodClick = useCallback(async (selectedMood) => {
+    console.log('Selected Mood:', selectedMood);
+    setMood(selectedMood);
+    await fetchYouTubeVideos(selectedMood);
+  }, [fetchYouTubeVideos]);
+
+  const handleVideoClick = useCallback((video) => {
     console.log('Playing video:', video.id.videoId);
     dispatch(addVideoToPlaylist({
       title: video.snippet.title,
       videoId: video.id.videoId,
     }));
-  };
+  }, [dispatch]);
 
-  const handleMoodSelection = (selectedMood) => {
+  const handleMoodSelection = useCallback((selectedMood) => {
     setMood(selectedMood);
     localStorage.setItem('selectedMood', selectedMood);
-  };
+  }, []);
 
   return (
     <div style={{ background: 'linear-gradient(to bottom, #fbc2eb, #a6c1ee)', minHeight: '100vh', paddingTop: '64px' }}>

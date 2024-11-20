@@ -1,33 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import logo from '../assets/images/cloud.png';
 
 const MemoApp = () => {
   const [memo, setMemo] = useState('');
   const [memoList, setMemoList] = useState([]);
   const navigate = useNavigate();
 
-  const addMemo = () => {
+  const addMemo = useCallback(() => {
     if (memo.trim() === '') return; 
     const newMemo = {
       id: Date.now(),
       content: memo,
     };
-    setMemoList([...memoList, newMemo]);
+    setMemoList((prevMemoList) => [...prevMemoList, newMemo]);
     setMemo('');
-  };
+  }, [memo]);
 
-  const editMemo = (id, newContent) => {
-    setMemoList(memoList.map(memo => memo.id === id ? { ...memo, content: newContent } : memo));
-  };
+  const editMemo = useCallback((id, newContent) => {
+    setMemoList((prevMemoList) =>
+      prevMemoList.map((memo) => (memo.id === id ? { ...memo, content: newContent } : memo))
+    );
+  }, []);
 
-  const deleteMemo = (id) => {
-    setMemoList(memoList.filter(memo => memo.id !== id));
-  };
+  const deleteMemo = useCallback((id) => {
+    setMemoList((prevMemoList) => prevMemoList.filter((memo) => memo.id !== id));
+  }, []);
 
-  const saveMemoToFile = () => {
+  const saveMemoToFile = useCallback(() => {
     const blob = new Blob([memo], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -37,7 +38,7 @@ const MemoApp = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
+  }, [memo]);
 
   return (
     <div className="memo-container" style={{ backgroundColor: '#f7f9fc', minHeight: '100vh', paddingTop: '64px', fontFamily: 'Arial, sans-serif' }}>

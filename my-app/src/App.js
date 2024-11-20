@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store.js';
 import MainPage from './components/MainPage.js';
@@ -13,7 +13,7 @@ import theme from './styles/theme.js';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { VideoProvider } from './context/YouTubeContext.js';
 import YouTubePlayer from './components/YouTubePlayer.js';
-import NotFound from './components/NotFound.jsx';
+import NotFound from './components/NotFound.js';
 
 const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 

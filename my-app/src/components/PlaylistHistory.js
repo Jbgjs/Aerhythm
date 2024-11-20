@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GoogleAuth from './GoogleAuth';
 import { fetchLikedVideos, getPlaylists, searchVideosByMood } from '../api/youtubeApi2';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import logo from '../assets/images/cloud.png';
@@ -20,7 +19,7 @@ const PlaylistHistory = () => {
   const navigate = useNavigate();
   const { setVideoUrl, setIsPlaying } = useYouTube();
 
-  const handleLoginSuccess = async (accessToken) => {
+  const handleLoginSuccess = useCallback(async (accessToken) => {
     console.log('Login successful, access token:', accessToken);
     const likedVideos = await fetchLikedVideos(accessToken);
     console.log('Fetched liked videos:', likedVideos);
@@ -29,15 +28,15 @@ const PlaylistHistory = () => {
     const userPlaylists = await getPlaylists(accessToken);
     console.log('Fetched playlists:', userPlaylists);
     setPlaylists(userPlaylists);
-  };
+  }, []);
 
-  const handleRefreshRecommendations = async () => {
+  const handleRefreshRecommendations = useCallback(async () => {
     const mood = localStorage.getItem('selectedMood');
     if (mood) {
       const videos = await searchVideosByMood(mood) || [];
       setRecommendedVideos(videos);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const mood = localStorage.getItem('selectedMood');
@@ -48,7 +47,7 @@ const PlaylistHistory = () => {
     }
   }, []);
 
-  const handleMoodClick = async (mood) => {
+  const handleMoodClick = useCallback(async (mood) => {
     localStorage.setItem('selectedMood', mood);
     const videos = await searchVideosByMood(mood) || [];
     if (Array.isArray(videos) && videos.length > 0) {
@@ -60,12 +59,12 @@ const PlaylistHistory = () => {
     } else {
       console.log('No videos found for this mood.');
     }
-  };
+  }, [setVideoUrl, setIsPlaying]);
 
-  const handleVideoClick = (video) => {
+  const handleVideoClick = useCallback((video) => {
     setVideoUrl(`https://www.youtube.com/watch?v=${video.id.videoId}`);
     setIsPlaying(true);
-  };
+  }, [setVideoUrl, setIsPlaying]);
 
   return (
     <div style={styles.container}>

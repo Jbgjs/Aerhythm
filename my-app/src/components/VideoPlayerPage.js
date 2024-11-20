@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ReactPlayer from 'react-player';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,11 +6,10 @@ const VideoPlayerPage = () => {
   const [videoUrl, setVideoUrl] = useState('https://www.youtube.com/watch?v=dQw4w9WgXcQ'); 
   const navigate = useNavigate();
 
-  // 페이지가 변경될 때에도 영상 상태 유지
-  const handlePlay = () => {
+  const handlePlay = useCallback(() => {
     // 동영상을 유지하면서 페이지 이동
     navigate('/other-page', { state: { videoUrl } });
-  };
+  }, [navigate, videoUrl]);
 
   useEffect(() => {
     const state = window.history.state;

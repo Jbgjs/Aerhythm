@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AppBar, Toolbar, Typography, Button, Grid } from '@mui/material';
 import styled from 'styled-components';
 import { useGoogleLogin } from 'react-google-login';
@@ -23,17 +23,17 @@ const MusicRecommendationPage = () => {
   const [mood, setMood] = useState(null);
   const [recommendation, setRecommendation] = useState('');
 
-  const handleMoodClick = (selectedMood) => {
+  const handleMoodClick = useCallback((selectedMood) => {
     console.log('Selected Mood:', selectedMood);
     setMood(selectedMood);
     recommendMusic(selectedMood);
-  };
+  }, []);
 
   useEffect(() => {
     console.log('Current Mood:', mood);
   }, [mood]);
 
-  const recommendMusic = (mood) => {
+  const recommendMusic = useCallback((mood) => {
     let music;
     switch (mood) {
       case '기쁨':
@@ -52,22 +52,26 @@ const MusicRecommendationPage = () => {
         music = '';
     }
     setRecommendation(music);
-  };
+  }, []);
+
+  const onSuccess = useCallback((response) => {
+    console.log('Login Success:', response);
+  }, []);
+
+  const onFailure = useCallback((response) => {
+    console.log('Login Failed:', response);
+  }, []);
 
   const { signIn, loaded } = useGoogleLogin({
     clientId: '569210729389-8og5q7d6rc06vcq48lroe1kpclp9vpik.apps.googleusercontent.com',
-    onSuccess: (response) => {
-      console.log('Login Success:', response);
-    },
-    onFailure: (response) => {
-      console.log('Login Failed:', response);
-    },
+    onSuccess,
+    onFailure,
     scope: 'https://www.googleapis.com/auth/youtube.readonly',
   });
 
-  const handleRecommendClick = () => {
+  const handleRecommendClick = useCallback(() => {
     console.log('Recommend based on YouTube playlist');
-  };
+  }, []);
 
   return (
     <div style={{ backgroundColor: '#f0f4f8', minHeight: '100vh', padding: '20px' }}>

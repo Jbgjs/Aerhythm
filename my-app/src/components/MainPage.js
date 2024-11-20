@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Grid, Button } from '@mui/material';
 import styled from 'styled-components';
@@ -48,17 +48,21 @@ const MainPage = () => {
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
 
   const loginHandler = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
+    onSuccess: useCallback((tokenResponse) => {
       console.log('Login Success:', tokenResponse);
       dispatch(login());
-    },
-    onError: () => console.log('Login Failed'),
+    }, [dispatch]),
+    onError: useCallback(() => console.log('Login Failed'), []),
   });
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(logout());
     console.log('Logged out');
-  };
+  }, [dispatch]);
+
+  const handleNavigate = useCallback((path) => {
+    navigate(path);
+  }, [navigate]);
 
   return (
     <div style={{ backgroundColor: '#f0f4f8', minHeight: '100vh', color: '#2c3e50', fontFamily: 'Montserrat, sans-serif' }}>
@@ -68,7 +72,7 @@ const MainPage = () => {
             src={logo} 
             alt="Logo" 
             style={{ height: '40px', marginRight: '20px', cursor: 'pointer' }} 
-            onClick={() => navigate('/not-found')}
+            onClick={() => handleNavigate('/not-found')}
           />
           <Typography variant="h6" style={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold', color: '#ffffff' }}>
             <span style={{ color: '#ffecd2' }}>Aer</span>
@@ -92,25 +96,25 @@ const MainPage = () => {
       </div>
       <Grid container spacing={4} justifyContent="center" alignItems="center" style={{ padding: '20px 20px', marginTop: '-100px' }}>
         <Grid item xs={12} sm={12}>
-          <Box onClick={() => navigate('/weather')}>
+          <Box onClick={() => handleNavigate('/weather')}>
             <Icon>🌤️</Icon>
             <Typography variant="h6" style={{ color: '#ffffff', fontWeight: 'bold' }}>날씨 정보 페이지</Typography>
           </Box>
         </Grid>
         <Grid item xs={12} sm={12}>
-          <Box onClick={() => navigate('/recommendation')}>
+          <Box onClick={() => handleNavigate('/recommendation')}>
             <Icon>🎵</Icon>
             <Typography variant="h6" style={{ color: '#ffffff', fontWeight: 'bold' }}>오늘의 추천 음악</Typography>
           </Box>
         </Grid>
         <Grid item xs={12} sm={12}>
-          <Box onClick={() => navigate('/playlist')}>
+          <Box onClick={() => handleNavigate('/playlist')}>
             <Icon>📊</Icon>
             <Typography variant="h6" style={{ color: '#ffffff', fontWeight: 'bold' }}>음악 기록 & 감정 분석 페이지</Typography>
           </Box>
         </Grid>
         <Grid item xs={12} sm={12}>
-          <Box onClick={() => navigate('/memo')}>
+          <Box onClick={() => handleNavigate('/memo')}>
             <Icon>📝</Icon>
             <Typography variant="h6" style={{ color: '#ffffff', fontWeight: 'bold' }}>메모장</Typography>
           </Box>

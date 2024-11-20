@@ -1,16 +1,19 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { fetchWeatherData } from '../api/weatherApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchWeather } from '../redux/weatherActions';
 import { AppBar, Toolbar, Typography, Button, Grid, Autocomplete, TextField, IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import styled from 'styled-components';
 import cloudIcon from '../assets/images/cloud.png'; 
 import { GoogleLogin } from '@react-oauth/google';
 
 const WeatherPage = ({ isLoggedIn }) => {
   const [region, setRegion] = useState('');
-  const [weatherData, setWeatherData] = useState(null);
   const navigate = useNavigate(); 
+  const dispatch = useDispatch();
+  const weatherData = useSelector((state) => state.weather.data);
+  const loading = useSelector((state) => state.weather.loading);
+  const error = useSelector((state) => state.weather.error);
 
   const regions = ['Seoul', 'Incheon', 'Daejeon', 'Chungnam', 'Busan', 'Gyeonggi-do', 'Gangwon-do', 'Jeolla-do', 'Gyeongsang-do'];
 
@@ -18,19 +21,14 @@ const WeatherPage = ({ isLoggedIn }) => {
     setRegion(value);
   }, []);
 
-  const fetchWeather = useCallback(async () => {
+  const fetchWeatherData = useCallback(() => {
     if (!region) return;
-    try {
-      const data = await fetchWeatherData(region); 
-      setWeatherData(data);
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
-    }
-  }, [region]);
+    dispatch(fetchWeather(region));
+  }, [dispatch, region]);
 
-  const handleBackClick = () => {
+  const handleBackClick = useCallback(() => {
     navigate(-1);
-  };
+  }, [navigate]);
 
   return (
     <div style={{ background: 'linear-gradient(to bottom, #a1c4fd, #c2e9fb)', minHeight: '100vh', paddingTop: '64px', color: '#2c3e50', fontFamily: 'Montserrat, sans-serif' }}>
@@ -70,11 +68,13 @@ const WeatherPage = ({ isLoggedIn }) => {
             />
           </Grid>
           <Grid item>
-            <Button onClick={fetchWeather} style={{ backgroundColor: '#4a90e2', color: 'white', transition: 'background-color 0.3s', '&:hover': { backgroundColor: '#357ABD' } }}>
+            <Button onClick={fetchWeatherData} style={{ backgroundColor: '#4a90e2', color: 'white', transition: 'background-color 0.3s', '&:hover': { backgroundColor: '#357ABD' } }}>
               날씨 확인
             </Button>
           </Grid>
         </Grid>
+        {loading && <Typography>Loading...</Typography>}
+        {error && <Typography>Error: {error}</Typography>}
         {weatherData && (
           <div style={{ marginTop: '40px', backgroundColor: '#ffffff', padding: '20px', borderRadius: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', maxWidth: '600px', margin: '0 auto' }}>
             <img src={cloudIcon} alt="Cloud Icon" style={{ width: '100px', marginBottom: '10px' }} />
